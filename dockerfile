@@ -1,15 +1,18 @@
-# Mulai dari image Ubuntu versi 22.04
-FROM ubuntu:22.04
+# Dockerfile untuk menjalankan PocketBase
 
-# Copy binary PocketBase (Linux) ke folder root dalam container
-COPY pocketbase /pocketbase
+FROM alpine:latest
 
-# Copy folder data (pb_data) dan migrasi (jika ada)
-COPY pb_data /data/pb_data
-COPY migration /data/migration
+# Install bash dan unzip (dibutuhkan)
+RUN apk add --no-cache bash
 
-# Buka port 8090 agar bisa diakses dari luar
+# Buat direktori kerja
+WORKDIR /app
+
+# Copy semua isi folder ke image Docker
+COPY . .
+
+# Buka port default PocketBase
 EXPOSE 8090
 
-# Jalankan PocketBase: serve di port 8090 dengan data & migrasi
-CMD ["/pocketbase", "serve", "--http", "0.0.0.0:8090", "--dir", "/data/pb_data", "--migrations", "/data/migration"]
+# Jalankan PocketBase dengan file database dari pb_data
+CMD ["./pocketbase", "serve", "--dir", "pb_data", "--publicDir", "public"]
