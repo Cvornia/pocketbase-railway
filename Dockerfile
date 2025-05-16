@@ -1,26 +1,21 @@
 # Gunakan image Ubuntu sebagai dasar
 FROM ubuntu:22.04
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Install curl dan chmod
+RUN apt update && apt install -y curl && apt clean
 
-# Set direktori kerja
+# Buat folder kerja di dalam container
 WORKDIR /app
 
-# Salin file pocketbase binary ke container
+# Salin file binary PocketBase ke dalam container
 COPY pocketbase /pocketbase
 
-# Salin data PocketBase
+# Salin folder data (pb_data) dan migrasi (pb_migrations)
 COPY pb_data /data/pb_data
+COPY pb_migrations /data/migration
 
-# Salin folder migrasi jika ada
-COPY pb_migrations /data/pb_migrations
-
-# Buka port 8090
+# Buka port 8090 agar bisa diakses dari luar
 EXPOSE 8090
 
-# Jalankan PocketBase saat container start
-CMD ["/pocketbase", "serve", "--dir", "/data"]
+# Jalankan PocketBase saat container di-start
+CMD ["/pocketbase", "serve", "--http=0.0.0.0:8090"]
